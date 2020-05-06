@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "dumi dev"
+    "dev": "dumi dev",
+    "build": "dumi build"
   },
   "keywords": [],
   "author": "",
