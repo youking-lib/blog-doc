@@ -1,0 +1,15 @@
+{
+  "name": "blog-doc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "dumi dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dumi": "^1.0.21"
+  }
+}
