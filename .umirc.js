@@ -1,7 +1,7 @@
 export default {
-  history: {
-    type: 'hash'
-  },
-  base: '/blog-doc/',
-  publicPath: '/blog-doc/'
+  logo: '/logo.jpg',
+  favicon: '/logo.jpg',
+  exportStatic: { htmlSuffix: true }
+  // base: '/blog-doc/',
+  // publicPath: '/blog-doc/'
 }
