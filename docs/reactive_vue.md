@@ -2,12 +2,11 @@
 title: 深入了解 vue 响应式原理
 tags:
 ---
-
 # 深入了解 vue 响应式原理
 
 ## 概述
 
-”对象劫持“ 这个命题，我想到几个问题：什么是对象劫持？怎么劫持？为什么要劫持？
+我认为 vue 的响应式原理主要基于：数据劫持、依赖收集和异步更新，通过对象劫持来做 依赖的收集 和 数据变化的侦测，通过维持一个队列来异步更新视图。
 
 ### 什么是对象劫持？
 
@@ -56,17 +55,17 @@ Object.defineProperty(dog, 'house', {
   }
 })
 dog.house = 'villa'
-{
-  name: 'dog',
-  single: false,
-  girlFriend: 'charm'
-}
+// {
+//   name: 'dog',
+//   single: false,
+//   girlFriend: 'charm'
+// }
 dog.house = null
-{
-  name: 'dog',
-  single: true,
-  girlFriend: null
-}
+// {
+//   name: 'dog',
+//   single: true,
+//   girlFriend: null
+// }
 ```
 
 ### 为什么要劫持？
@@ -77,7 +76,7 @@ dog.house = null
 
 ### Object.defineProperty 的局限
 
-#### 1. 不能检测新增、删除对象
+#### 1. 不能检测新增、删除属性操作
 
 Object.defineProperty 无法做到新增属性的拦截：
 
@@ -352,6 +351,70 @@ export default {
   }
 }
 </script>
+```
+
+在数据更新时会触发 `dep.notify` ，这会将 watcher 放入队列等待下一次事件循环
+
+```js
+// observer/index.js
+function defineReactive () {
+  // ...
+  Object.defineProperty({
+    set () {
+      // ...
+      dep.notify()
+    }
+  })
+}
+// dep.js
+class Dep {
+	notify () {
+    // stabilize the subscriber list first
+    const subs = this.subs.slice()
+    if (process.env.NODE_ENV !== 'production' && !config.async) {
+      // subs aren't sorted in scheduler if not running async
+      // we need to sort them now to make sure they fire in correct
+      // order
+      subs.sort((a, b) => a.id - b.id)
+    }
+    for (let i = 0, l = subs.length; i < l; i++) {
+      subs[i].update()
+    }
+  }
+}
+// watcher.js
+class Watcher {
+  // ...
+  update () {
+    /* istanbul ignore else */
+    if (this.lazy) {
+      this.dirty = true
+    } else if (this.sync) {
+      this.run()
+    } else {
+      queueWatcher(this)
+    }
+  }
+}
+```
+
+queueWatcher 会将当前 watcher push 到更新队列中，然后开始异步更新，以及更新后调触发响应的生命周期事件
+
+```js
+function queueWatcher (watcher) {
+	nextTick(flushSchedulerQueue)
+}
+function flushSchedulerQueue () {
+  for (index = 0; index < queue.length; index++) {
+    watcher = queue[index]
+   	watcher.run()
+    // ...
+		const vm = watcher.vm
+    if (vm._watcher === watcher && vm._isMounted && !vm._isDestroyed) {
+      callHook(vm, 'updated')
+    }
+  }
+}
 ```
 
 ### Proxy 在 Vue3 中的运用
