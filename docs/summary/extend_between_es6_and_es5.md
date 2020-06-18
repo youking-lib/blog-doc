@@ -126,13 +126,13 @@ SubType.staticFun() // staticFun
 
 ## 总结
 
-### 继承机制
+### 两者继承机制不同
 
 ES5 中，子类对于父类构造函数的继承时，子类的 this 已经存在，通过 `SuperType.call(this, ...args)` 的方式来修改子类的 this
 
 而 ES6 的子类必须要调用 `super(...args)` 来生成 this
 
-### 构造函数的原型链指向
+### 两者构造函数的原型链指向不同
 
 ES5 的子类和父类的构造函数函数的原型链都指向 Function.prototype
 
@@ -142,6 +142,6 @@ ES5 的子类和父类的构造函数函数的原型链都指向 Function.protot
 
 贴一张 babel 编译 ES6 class 为 ES5 的图片：
 
-![image-20200616220455247](assets/image-20200616220455247.png)
+![image-20200616220455247](./assets/image-20200616220455247.png)
 
 

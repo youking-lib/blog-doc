@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dumi": "^1.0.21"
+    "@umijs/preset-react": "1.x",
+    "dumi": "^1.0.31",
+    "father-build": "^1.17.2"
   }
 }
