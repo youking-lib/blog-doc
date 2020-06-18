@@ -33,5 +33,6 @@ export default defineConfig({
   navs: [
     null,
     { title: 'GitHub', path: 'https://github.com/whistleyz' }
-  ]
+  ],
+  scripts: ['https://hm.baidu.com/hm.js?56fbe606b14d07f8ad321f2c766e4d29']
 })
