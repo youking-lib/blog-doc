@@ -15,7 +15,8 @@ export default defineConfig({
         title: '总结',
         children: [
           'summary/extend_between_es6_and_es5',
-          'summary/unit_test_miniapp'
+          'summary/unit_test_miniapp',
+          'summary/mvp'
         ]
       }
     ],
@@ -34,5 +35,15 @@ export default defineConfig({
     null,
     { title: 'GitHub', path: 'https://github.com/whistleyz' }
   ],
-  scripts: ['https://hm.baidu.com/hm.js?56fbe606b14d07f8ad321f2c766e4d29']
+  scripts: ['https://hm.baidu.com/hm.js?56fbe606b14d07f8ad321f2c766e4d29'],
+  extraBabelPlugins: [
+    [
+      'import',
+      {
+        libraryName: 'antd',
+        libraryDirectory: 'es',
+        style: 'css',
+      },
+    ]
+  ]
 })

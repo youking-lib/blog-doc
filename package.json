@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ant-design/icons": "^4.2.1",
+    "antd": "^4.3.4",
     "dumi": "^1.0.31"
   }
 }
