@@ -16,7 +16,8 @@ export default defineConfig({
         children: [
           'summary/extend_between_es6_and_es5',
           'summary/unit_test_miniapp',
-          'summary/mvp'
+          'summary/mvp',
+          'summary/bench_nodejs'
         ]
       }
     ],
