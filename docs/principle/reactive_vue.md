@@ -6,7 +6,7 @@ tags:
 
 ## 概述
 
-我认为 vue 的响应式原理主要基于：数据劫持、依赖收集和异步更新，通过对象劫持来做 依赖的收集 和 数据变化的侦测，通过维持一个队列来异步更新视图。
+vue 的响应式原理主要从三个角度来理解：数据劫持、依赖收集和异步更新。通过对象劫持来做 依赖的收集 和 数据变化的侦测，维持一个队列来异步更新视图。
 
 ### 什么是对象劫持？
 
@@ -26,7 +26,9 @@ delete dog.girlFriend
 console.log(dog.name)
 ```
 
-而我们说的对象劫持，就是希望劫持这些对对象的操作方法，那么先来看看
+上面的操作是低效的，当删除 dog 的 house 属性，single 属性应该自动被设置为 true。通过数据劫持，可以通过拦截某个属性的修改操作，进而去处理这个改变应该触发的其他值、状态的更新。
+
+那么先来看看
 
 ### 怎么劫持？
 
@@ -68,9 +70,7 @@ dog.house = null
 // }
 ```
 
-### 为什么要劫持？
-
-从上面数据劫持的例子可以看出，通过数据劫持，可以通过拦截某个属性的修改操作，进而去处理这个改变应该触发的其他值、状态的更新。这个就非常适合处理：数据驱动视图更新。vue 的响应式、数据驱动也是基于此。
+看起数据劫持很好用，但是其中也有许多需要注意的问题
 
 ## 深入
 
@@ -116,7 +116,7 @@ delete dog.name
 console.log(dog.name) // undefined
 ```
 
-defineProperty 的 set 描述符并不能劫持到 delete 操作。所以在 vue 中，回专门提供一个 `Vue.delete` 方法来删除一个属性
+defineProperty 的 set 描述符并不能劫持到 delete 操作。所以在 vue 中提供一个 `Vue.delete` 方法来删除一个属性。
 
 #### 2. 不能检测数组
 
@@ -150,9 +150,9 @@ dogs.unshift('newdog2')
 
 从这个打印输出来看 push 方法没有问题，但是 unshift 方法却不符合预期；unshift 方法的内部应该是首先将第一个元素赋值给第二，第二个赋值给第三个，以此类推，然后将 newdog2 复制给第一个元素。不过这从原理上说得通的，毕竟我们只是对 index 为 0 和 1 的属性做拦截。
 
-#### 3. 注意使用 Object.assign
+#### 3. 使用 Object.assign 需要注意
 
-MDN 官网上提到 Object.assign 方法在执行的时候，仅仅调用属性的 getter、setter 方法，所以在执行过程中，属性描述符会丢失：
+MDN 官网上提到 Object.assign 方法在执行的时候，并不会拷贝属性描述符到新对象，所以在执行过程中，属性描述符会丢失：
 
 ```js
 const dog = {}
@@ -229,9 +229,17 @@ var proxyDog = new Proxy(dogs, {
 proxyDog.push('easy')
 ```
 
-### 响应式原理 - Object.defineProperty 在 Vue2 中的运用
+#### 3. 为什么 Vue2 中不使用 Proxy 呢？
 
-Vue2 的变化侦测机制基于 Object.defineProperty ，理解 Vue2 的响应式原理，我们应该从三个角度：变化侦测机制、收集依赖、异步更新
+原因其实很简单，Proxy 的兼容性太差，很多浏览器不支持，比如 IE11。
+
+熟悉了数据劫持，可以再来深入了解下 vue 是怎么做到数据驱动视图更新的。
+
+## Vue 原理
+
+### Vue2 响应式原理
+
+我们可以从三个角度：变化侦测机制、收集依赖、异步更新来理解 Vue2 的响应式原理。
 
 #### 1. 变化侦测机制 - 数据劫持
 
@@ -263,7 +271,7 @@ Object.defineProperty(obj, key, {
 })
 ```
 
-这里问题就来了，我们正常取值 `data.name` 或者 `this.name` ，会触发 `reactiveGetter` ，但是这时候 `Dep.target` 肯定是不存在的，只有当 `Dep.target` 存在的时候才进行依赖收集：`dep.depend()` 。那么什么时候 `Dep.target` 才存在呢？`dep.depend()` 方法做了些什么？
+这里问题就来了，我们正常取值 `data.name` 或者 `this.name` ，会触发 `reactiveGetter` ，但是这时候 `Dep.target` 肯定是不存在的，只有当 `Dep.target` 存在的时候才进行依赖收集：`dep.depend()` 。那么什么时候 `Dep.target` 才存在呢？`dep.depend()` 方法又做了些什么事情呢？
 
 3. 通过 Object.defineProperty 劫持 setter ，通知依赖更新
 
