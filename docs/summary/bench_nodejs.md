@@ -9,6 +9,7 @@ brew install apr
 brew install pcre
 
 brew info apr
+brew info apr-util
 # 加载提示中的环境变量
 echo 'export PATH="/usr/local/opt/apr/bin:$PATH"' >> ~/.zshrc
 echo 'export PATH="/usr/local/opt/apr-util/bin:$PATH"' >> ~/.zshrc

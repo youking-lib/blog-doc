@@ -15,3 +15,5 @@
 [前端有必要重启MVC开发模式](/summary/mvp)
 
 [nodejs压力测试](/summary/bench_nodejs)
+
+[动态表单](/summary/dynamic_form)

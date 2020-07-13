@@ -17,7 +17,8 @@ export default defineConfig({
           'summary/extend_between_es6_and_es5',
           'summary/unit_test_miniapp',
           'summary/mvp',
-          'summary/bench_nodejs'
+          'summary/bench_nodejs',
+          'summary/dynamic_form',
         ]
       }
     ],
