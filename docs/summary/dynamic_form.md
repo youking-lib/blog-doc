@@ -136,7 +136,9 @@ export default {
 看起来循环生成的方式不是很优雅，但是的确是解决了一些问题：
 
 1. 减少样板代码
-2. 和 UI 层解除耦合
+2. 配置和 UI 层解除耦合
+
+但是，如你所见，这种表单渲染的局限性太大了，可拓展性基本上为 0 的
 
 ## 2 工业时代
 
@@ -155,6 +157,8 @@ export default {
 - 表单联动
 
 [Form-Create 示例](http://www.form-create.com/v2/guide/demo.html)
+
+> react: https://formilyjs.org/#/bdCRC5/dzUZU8il
 
 ### 2.2 使用 Form-Create 重构
 
@@ -223,18 +227,46 @@ formInstance.reload(Rules)
 
 ![dynamic_form-工业时代](./dynamic_form.assets/dynamic_form-industrial.png)
 
-## 3 信息时代
+## 3 更进一步
 
-### 3.1 配置平台（Wuji）
+通过上面的重构，我们发现最终的工作量落在了配置 rule 上，那么这一部分的工作量还有可能在减少吗？
+
+对于一个后台表的增删改查来说，基本上是一个字段不差的都需要渲染，这些表结构在mysql中都是可以获取到的
+
+### 3.1 获取表结构
+
+如下所示，我们能通过查看 mysql 表结构获取到全部字段：
+
+```sh
+MySQL [fileshelf]> desc application;
++---------------------+-------------+------+-----+----------------------+----------------+
+| Field               | Type        | Null | Key | Default              | Extra          |
++---------------------+-------------+------+-----+----------------------+----------------+
+| secret_id           | text        | NO   |     | NULL                 |                |
+| secret_key          | text        | NO   |     | NULL                 |                |
+| _ctime              | datetime(6) | NO   |     | CURRENT_TIMESTAMP(6) |                |
+| _mtime              | datetime(6) | NO   |     | CURRENT_TIMESTAMP(6) |                |
+| _id                 | int(11)     | NO   | PRI | NULL                 | auto_increment |
+| description         | text        | NO   |     | NULL                 |                |
+| max_item_shelf_size | int(11)     | NO   |     | 50                   |                |
++---------------------+-------------+------+-----+----------------------+----------------+
+7 rows in set (0.04 sec)
+```
+
+如果后台能提供获取表结构的接口，我们在渲染表单之前先发起请求获取所有字段，然后将字段转换为 form-create 的 rule ，那么表单就可以自动渲染出来：
+
+![dynamic_form-async_schema_description](dynamic_form.assets/dynamic_form-async_schema_description.png)
+
+### 3.2 配置平台
+
+内部有个自研的配置平台，在这个平台上创建的表自动赋予增删改查的 restful 接口，并且也提供了每个表的表结构获取接口
 
 ![image-20200709112547533](./dynamic_form.assets/image-20200709112547533.png)
 
-配置平台提供的能力：
-
-- 创建一个数据库、数据表之后就生成了对应的增删改查的接口
-- 提供查询数据库表结构的接口
+获取表结构接口示例：
 
 ```json
+// GET /api/field?_appid=fileshelf&_schemaid=application
 {
   "data": [
     {
@@ -267,15 +299,13 @@ formInstance.reload(Rules)
 }
 ```
 
-**Field 接口直接转换为 Form-create 的 rule 参数 ?**
-
 ### 3.2 能力整合
 
 ![dynamic_form-信息时代](./dynamic_form.assets/dynamic_form-information.png)
 
 ### 3.3 使用 ConfForm 进行重构
 
-```js
+```html
 <ConfFormView
   appId={appId}
   schemaId={schemaId}
@@ -287,7 +317,7 @@ formInstance.reload(Rules)
 
 同样的思路应用在表格组件
 
-```js
+```html
 <ConfTableView
   appId={this.appId}
   schemaId={this.schemaId}
