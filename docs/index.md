@@ -6,6 +6,8 @@
 
 [实现一个前端状态管理器](/principle/state_manager)
 
+[Promise 规范与实现](/principle/promise)
+
 ## 总结
 
 [ES6与ES5的类继承机制](/summary/extend_between_es6_and_es5)

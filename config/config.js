@@ -24,12 +24,17 @@ export default defineConfig({
     ],
     '/principle': [
       {
-        title: 'vue原理',
-        children: ['principle/reactive_vue']
+        title: 'Front',
+        children: [
+          'principle/reactive_vue',
+          'principle/state_manager'
+        ]
       },
       {
-        title: '状态管理',
-        children: ['principle/state_manager']
+        title: 'ECMAScript',
+        children: [
+          'principle/promise'
+        ]
       }
     ]
   },
