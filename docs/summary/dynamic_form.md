@@ -255,7 +255,7 @@ MySQL [fileshelf]> desc application;
 
 如果后台能提供获取表结构的接口，我们在渲染表单之前先发起请求获取所有字段，然后将字段转换为 form-create 的 rule ，那么表单就可以自动渲染出来：
 
-![dynamic_form-async_schema_description](dynamic_form.assets/dynamic_form-async_schema_description.png)
+![dynamic_form-async_schema_description](./dynamic_form.assets/dynamic_form-async_schema_description.png)
 
 ### 3.2 配置平台
 
