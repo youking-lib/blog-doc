@@ -27,7 +27,8 @@ export default defineConfig({
         title: 'Front',
         children: [
           'principle/reactive_vue',
-          'principle/state_manager'
+          'principle/state_manager',
+          'principle/vue_computed'
         ]
       },
       {

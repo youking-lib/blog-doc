@@ -4,6 +4,8 @@
 
 [深入了解 vue 响应式原理](/principle/reactive_vue)
 
+[Vue computed 与记忆函数](/principle/vue_computed)
+
 [实现一个前端状态管理器](/principle/state_manager)
 
 [Promise 规范与实现](/principle/promise)

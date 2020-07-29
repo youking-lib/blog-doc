@@ -161,7 +161,7 @@ export default function nextTick (fn) {
 }
 ```
 
-###发布订阅处理异步回调
+### 发布订阅处理异步回调
 
 ```js
 function subscribe (promise, thenPromise) {

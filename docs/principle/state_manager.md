@@ -334,7 +334,7 @@ class Store {
 [去这里](https://github.com/whistleyz/easydog) 查看她的简单用法和源代码；
 [查看 undo, redo 的简单示例](http://easydog.codingbro.cn/)
 
-她已经可以满足自己的使用，但是她仍存在限制和不足：
+她已经可以满足自己的使用，但是仍存在限制和不足：
 
 - dispath 对 setState 的不可预知
 
