@@ -1,8 +1,8 @@
 # Vue computed 与记忆函数
 
-## 1 初衷
+## 1 背景
 
-假设有以下一段代码，render 方法的参数 c 是经常变化的，而 a、b 则变化不频繁。分析这段代码可以得出一个结论：每次 render 函数被调用都会触发 calc 函数的调用，如果 a、c 参数没有发生改变，那么就会增加没有必要的计算
+假设有以下一段代码，render 方法的参数 c 是经常变化的，而 a、b 则变化不频繁。分析这段代码可以得出一个结论：每次 render 函数被调用都会触发 calc 函数的调用，如果 a、b 参数没有发生改变，那么就会增加没有必要的计算。
 
 ```js
 function calc (a, b) {
@@ -24,7 +24,7 @@ function render (a, b, c) {
 
 ## 2 记忆函数
 
-基本的思路是：通过对函数参数、计算结果进行缓存，再次调用进行比较：如果参数发生了变化，那么需要进行重新计算；如果参数没有发生变化，则返回上一次的计算结果：
+其原理是通过对函数参数、计算结果进行缓存，再次调用进行比较：如果参数发生了变化，那么需要进行重新计算；如果参数没有发生变化，则返回上一次的计算结果：
 
 ```js
 function createMemo (targetFunc) {
@@ -52,7 +52,7 @@ function argumentsShallowlyEqual (prev, next) {
 }
 ```
 
-现在我们将 calc 方法封装一下再进行测试：
+现在将 calc 方法封装一下再进行测试：
 
 ```js
 calc = createMemo(calc)
@@ -68,7 +68,7 @@ render(2,2,3)
 // render 2 2 3
 ```
 
-我们封装的方法 createMemo 拓展性不够，某些情况下，我们需要精细的控制是否进行缓存，比如函数如果接受一个对象的情况：
+封装的方法 createMemo 拓展性不够，某些情况下，需要精细的控制是否进行缓存，比如函数如果接受一个对象的情况：
 
 ```js
 function calc (option) {
@@ -83,7 +83,7 @@ calc({ value: 1 })
 // calc
 ```
 
-那么我们的记忆函数比较合适的用法法应该是这样的：
+那么的记忆函数比较合适的用法法应该是这样的：
 
 ```js
 const memoizedRender = createMemo(option => option.value, render)
@@ -93,7 +93,7 @@ memoizedRender()
 memoizedRender()
 ```
 
-然后我们来修改一下 createMemo 方法：
+然后来修改一下 createMemo 方法：
 
 ```js
 function createMemo (...funcs) {
@@ -417,6 +417,8 @@ class Watcher {
 当计算属性的依赖更新时，会触发计算属性 watcher.update 方法，这里并不进行求值，仅仅是将当前的 dirty 赋值为 false 表明当前的 watcher 的依赖已经发生变化，那么下一次计算属性被调用时，就会触发重新求值。这里就解释了，当计算属性的依赖更新时，计算属性并不会立即重新计算，而是当调用的时候才会重新求值。
 
 ## 4 总结
+
+先回答一下 3.1 节中提出的问题，当 a 改变了，c、b 各打印一次，而且 c、b 的求值时惰性的，如果模版里面没有依赖 b、c，他们是不会打印的。
 
 以上，本文详细分析了记忆函数与 Vue 的计算属性，Vue 的计算属性很巧妙的结合 Vue 自身响应式特性实现，Redux 也是通过简单的记忆函数就能实现性能优化。
 
