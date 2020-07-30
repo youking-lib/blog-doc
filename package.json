@@ -13,6 +13,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
     "antd": "^4.3.4",
-    "dumi": "^1.0.31"
+    "dumi": "^1.0.31",
+    "lodash": "^4.17.19"
   }
 }
