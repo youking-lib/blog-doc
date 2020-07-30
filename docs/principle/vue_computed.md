@@ -30,6 +30,7 @@ function render (a, b, c) {
 function createMemo (targetFunc) {
   let lastArgs = null
   let lastResult = null
+  // 通过一个闭包函数缓存参数和运算结果
   return function (...args) {
     if (!argumentsShallowlyEqual(lastArgs, args)) {
 			lastResult = targetFunc(...args)
@@ -38,6 +39,7 @@ function createMemo (targetFunc) {
     return lastResult
   }
 }
+// 判断引用相等即可
 function argumentsShallowlyEqual (prev, next) {
   if (prev === null || next === null || prev.length !== next.length) {
     return false
@@ -52,7 +54,7 @@ function argumentsShallowlyEqual (prev, next) {
 }
 ```
 
-现在将 calc 方法封装一下再进行测试：
+现在将 calc 方法封装一下再进行测试，结果是符合预期的：
 
 ```js
 calc = createMemo(calc)
@@ -68,32 +70,34 @@ render(2,2,3)
 // render 2 2 3
 ```
 
-封装的方法 createMemo 拓展性不够，某些情况下，需要精细的控制是否进行缓存，比如函数如果接受一个对象的情况：
+不过简单的缓存并不能 cover 住复杂的 Redux 应用程序，还需要对 createMemo 方法进行进一步拓展。比如我们有以下 redux 相关代码片段，我们希望在原有逻辑改动不大的情况下，引入记忆函数来优化性能：
 
 ```js
-function calc (option) {
-  // 这里消耗大量性能
-  console.log('calc')
+const state = {
+  filter: 'done',
+  todos: [{
+    status: 'done'
+  }, {
+    status: 'doing'
+  }]
 }
-calc({ value: 0 })
-// calc
-calc({ value: 0 })
-// calc
-calc({ value: 1 })
-// calc
+const getTodos = state => state.todos
+const getFilter = state => state.filter
+const getDoingTodos = (filter, todos) => todos.filter(item => item.status === filter)
 ```
 
-那么的记忆函数比较合适的用法法应该是这样的：
+记忆函数应该支持组合的，这样在 redux 应用中，不修改代码基本就可以完成优化：
 
 ```js
-const memoizedRender = createMemo(option => option.value, render)
-memoizedRender()
-// calc
-memoizedRender()
-memoizedRender()
+const getDoingTodos = createMemo(
+  state => getFilter(state),
+  state => getTodos(state),
+  (filter, todos) => todos.filter(item => item.status === filter)
+)
 ```
 
-然后来修改一下 createMemo 方法：
+所以还需要再来修改一下 createMemo 方法以支持组合的情况：
+
 
 ```js
 function createMemo (...funcs) {
@@ -125,7 +129,7 @@ function defaultMemoize (func) {
     return lastResult
   }
 }
-
+// 判断引用相等即可
 function argumentsShallowlyEqual (prev, next) {
   if (prev === null || next === null || prev.length !== next.length) {
     return false
@@ -140,13 +144,15 @@ function argumentsShallowlyEqual (prev, next) {
 }
 ```
 
+这里要注意的是，createMemo 我们创建了两个 'memoize' 的函数，selector 缓存的参数是 `status` ，memoizedTargetFunc 缓存的参数是 `filter` 、`todos` 。由于记忆函数在 argumentsShallowlyEqual 函数中判断参数是否发生改变，仅仅是进行 `ShallowlyEqual` 。所以，想要进一步判断相等，可能还需要引入不可变数据 (immutable.js) 、重置 argumentsShallowlyEqual 等。
+
 > 参考
 >
 > Redux 计算衍生数据：https://www.redux.org.cn/docs/recipes/ComputingDerivedData.html
 >
 > Reselect https://github.com/reduxjs/reselect
 
-在 Vue 中也有计算属性能达到类似效果，他们在实现上和用法都有一些不同
+在 Vue 中也有计算属性能达到类似效果，他们在实现上和用法都有一些不同。在 Redux 中，需要缓存的函数可能都需要用 createMemo 方法封装一下，例如示例中，如果 getTodos 方法也需要进行大量计算，那么还需要对 getTodos 方法套个记忆函数的壳，而 Vue 自带计算属性，一个 computed 就可以实现类似的能力。
 
 ## 3 Vue computed
 
@@ -167,6 +173,8 @@ const Demo1 = new Vue({
   }
 })
 ```
+
+相信你对上面的代码再熟悉不过了，现在进行简单修改，如果计算属性依赖的路径过多，那么你知道它在 Vue 中如何被更新的吗？
 
 ```js
 const Demo2 = new Vue({
@@ -196,7 +204,7 @@ const Demo2 = new Vue({
 实例化一个 Vue 组件大致经历以下过程，从下面的简化代码可以看出，计算属性 computed 主要在 initComputed 方法中初始化。
 
 ```js
-https://github.com/vuejs/vue/blob/dev/src/core/instance/index.js#L8
+// https://github.com/vuejs/vue/blob/dev/src/core/instance/index.js#L8
 function Vue (options) {
   this._init(options)
 }
@@ -230,7 +238,7 @@ function initState (vm) {
 }
 ```
 
-在 computed 初始化阶段，需要注意的是 Vue 遍历 computed 对象，为每个属性实例化一个 `lazy` Watcher ，然后将每个属性 defineComputed。
+那么 initComputed 方法做了哪些事情呢 ？
 
 ```js
 const computedWatcherOptions = { lazy: true }
@@ -276,12 +284,12 @@ function initComputed (vm: Component, computed: Object) {
 }
 ```
 
-先小结一下，计算属性在实例化的时候主要做了：
+阅读上面的代码之后可以发现，在 computed 初始化阶段主要做了两件事情：
 
 1. 遍历每个属性，为每个属性实例化一个 `lazy` Watcher
 2. 为每个属性 defineComputed
 
-先往下走，看看 defineComputed 做了什么事情
+Watcher 的实例化稍微有点复杂，待会再说，先往下走，看看 defineComputed 做了什么事情。
 
 #### 3.2.1 defineComputed
 
@@ -333,9 +341,9 @@ function createComputedGetter (key) {
 
 这里主要关注 computedGetter 方法，在这之前，先来了解一下 watcher 的几个属性方法，后面会详细去说：
 
-- watcher.dirty 是标记 watcher 是否需要重新求值，当依赖发生变化时 dirty 会被赋值为 true ，因为需要重新求值了
-- watcher.evaluate 所做的事情就是求值，求值完成后将 dirty 赋值为 false
-- watcher.depend 依赖当前的 Dep.target，比如当前正在处于渲染过程中，Darget.target 为渲染 watcher ，那么当前计算属性的 watcher 会被渲染watcher 收集
+- watcher.dirty 是标记 watcher 是否需要重新求值，当计算属性的依赖发生变化时 dirty 会被赋值为 true ，因为需要重新进行 watcher.evaluate
+- watcher.evaluate 所做的事情就是求值，即运行 userDef 函数，求值完成后将 dirty 赋值为 false
+- watcher.depend 依赖当前的 Dep.target，比如当前正在处于渲染过程中，Darget.target 为渲染 watcher ，那么当前计算属性的 watcher 会被渲染 watcher 收集，这样计算属性作为渲染 watcher 的一个依赖，所以计算属性改变会触发渲染 watcher 更新
 
 获取计算属性的值时，会触发 computedGetter 方法，首次调用会触发 watcher.evalute 计算，这中间会有依赖收集的过程；计算完成后，会进行值的缓存，那么计算属性再次被调用就不会触发求值。
 
@@ -343,7 +351,7 @@ function createComputedGetter (key) {
 
 #### 3.2.2 lazy Watcher
 
-经简化后，与计算属性相关的代码如下：
+经简化后， Watcher 与计算属性相关的部分源代码如下：
 
 ```js
 // https://github.com/vuejs/vue/blob/dev/src/core/observer/watcher.js#L26
@@ -397,10 +405,10 @@ class Watcher {
 
 可以分三个过程来解释这部分代码：Watcher 实例化过程、计算属性取值过程、依赖更新过程
 
-1. Watcher 实例化过程
+1. 计算属性初始化 即 Watcher 实例化过程
 
-计算属性的 lazy 会被复制为 false ，即实例化了一个 `lazy` Watcher
-如果当前是一个 `lazy` Watcher 的话，那么不会立即去求值
+initComputed 在遍历计算属性的过程中，实例化 watcher 时， lazy 会被赋值为 true ，即实例化了一个 `lazy` Watcher
+如果当前是一个 `lazy` Watcher 的话，那么不会立即去求值。
 
 2. 计算属性取值过程
 
@@ -408,13 +416,13 @@ class Watcher {
 
 当 watcher.get 被调用时，Dep.target 会变为当前这个计算属性的 watcher ，所以 this.getter 调用的时候，函数内部的所有依赖会被当前 watcher 收集。
 
-> 这里依赖收集的过程如果你不是很了解的话，推荐你看一下 vue 的 observer 的过程，或者看一下我的另一篇相关的文章 [深入了解 vue 响应式原理](https://blog.easydog.club/principle/reactive_vue#vue-原理)
+> 这里依赖收集的过程如果你不是很了解的话，推荐你看一下 Vue 源码中 observer 的过程，或者看一下我的另一篇相关的文章 [深入了解 vue 响应式原理](https://blog.easydog.club/principle/reactive_vue#vue-原理)
 
-当 watcher.evaluate 调用完成后，dirty 会被立即设置为 false ，所以后续再触发计算属性的取值函数，则不会重新计算，这样就达到了缓存的效果
+当 watcher.evaluate 调用完成后，dirty 会被立即设置为 false ，所以后续再触发计算属性的取值函数，则不会重新计算，这样就达到了缓存的效果。
 
 3. 依赖更新的过程
 
-当计算属性的依赖更新时，会触发计算属性 watcher.update 方法，这里并不进行求值，仅仅是将当前的 dirty 赋值为 false 表明当前的 watcher 的依赖已经发生变化，那么下一次计算属性被调用时，就会触发重新求值。这里就解释了，当计算属性的依赖更新时，计算属性并不会立即重新计算，而是当调用的时候才会重新求值。
+当计算属性的依赖更新时，会触发计算属性 watcher.update 方法，这里并不进行求值，仅仅是将当前的 dirty 赋值为 false ， 表明当前的 watcher 的依赖已经发生变化，那么下一次计算属性被调用时，就会触发重新求值。这里就解释了，当计算属性的依赖更新时，计算属性并不会立即重新计算，而是当调用的时候才会重新求值。
 
 ## 4 总结
 
