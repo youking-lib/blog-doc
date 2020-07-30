@@ -16,7 +16,7 @@
 
 [小程序单元测试环境搭建](/summary/unit_test_miniapp)
 
-[前端有必要重启MVC开发模式](/summary/mvp)
+[我在前端项目中使用了 MVP](/summary/mvp)
 
 [nodejs压力测试](/summary/bench_nodejs)
 
