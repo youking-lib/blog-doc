@@ -19,6 +19,7 @@ export default defineConfig({
           'summary/mvp',
           'summary/bench_nodejs',
           'summary/dynamic_form',
+          'summary/SRI'
         ]
       }
     ],
