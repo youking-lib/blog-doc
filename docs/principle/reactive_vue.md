@@ -425,6 +425,41 @@ function flushSchedulerQueue () {
 }
 ```
 
+### 细节处理
+
+### 对数组的处理
+
+如果监听的 一个对象是一个数组，那么：
+
+```js
+const hasProto = '__proto__' in {}
+class Observer {
+  constructor (value: any) {
+    this.value = value
+    
+    if (isArray(value)) {
+      if (hasProto) {
+        value.__proto__ = arrayMethods
+      }
+      this.observeArray(value)
+    } else {
+      this.walk(value)
+    }
+  }
+  observeArray (value) {
+    for (let i=0, l=value.length; i<l; i++) {
+      observe(value[i])
+    }
+  }
+  walk (obj) {
+    const keys = Object.keys(obj)
+    for (let i=0; i<keys.length; i++) {
+      defineReactive(obj, keys[i])
+    }
+  }
+}
+```
+
 ### Proxy 在 Vue3 中的运用
 
 // TODO

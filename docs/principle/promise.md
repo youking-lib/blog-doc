@@ -291,49 +291,28 @@ function reject (promise, error) {
 ### 调用 Promise.then callback
 
 ```js
-function invokePromise (promise, state, value) {
-	let callback, thenResult, success
-  
-  if (state === FULFILLED_STATE) {
-    callback = promise._onFulfillment
-  } else if (state === REJECTED_STATE) {
-    callback = promise._onRejction
+function invokeThenPromise (thenPromise, promiseState, promiseValue) {
+  let callback
+
+  if (promiseState === FULFILL_STATE) {
+    callback = thenPromise.onFulfill
+  } else if (promiseState === REJECTION_STATE) {
+    callback = thenPromise.onReject
   }
-  
+
   if (isFunction(callback)) {
     try {
-      thenResult = callback(value)
-      success = true
+      const thenResult = callback(promiseValue)
+      resolve(thenPromise, thenResult)
     } catch (error) {
-      thenResult = error
-      success = false
-    }
-    if (promise === thenResult) {
-      return reject(promise, canotReturnOwn())
+      reject(thenPromise, error)
     }
   } else {
-    thenResult = value
-  }
-  
-  if (promise.promiseState !== PENDING_STATE) {
-    return
-  }
-  
-  if (success === true) {
-    resolve(promise, thenResult)
-    return
-  }
-  if (success === false) {
-    reject(promise, thenResult)
-    return
-  }
-  if (state === FULFILLED_STATE) {
-    fulfill(promise, thenResult)
-    return
-  }
-  if (state === REJECTED_STATE) {
-    reject(promise, thenResult)
-    return
+    if (promiseState === FULFILL_STATE) {
+      fulfill(thenPromise, promiseValue)
+    } else if (promiseState === REJECTION_STATE) {
+      reject(thenPromise, promiseValue)
+    }
   }
 }
 ```
