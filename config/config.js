@@ -3,7 +3,7 @@
  * @author: yongzhen
  * @Date: 2020-10-23 11:28:31
  * @LastEditors: yongzhen
- * @LastEditTime: 2020-10-30 17:50:26
+ * @LastEditTime: 2021-01-06 21:34:27
  */
 import { defineConfig } from "dumi";
 
@@ -50,10 +50,14 @@ export default defineConfig({
         children: ["principle/promise"],
       },
     ],
-    "/algorithm": [
+    "/practice": [
       {
-        title: "计算器",
-        children: ["algorithm/calculator/README"],
+        title: "Algorithm",
+        children: ["practice/algorithm/calculator/README"],
+      },
+      {
+        title: "DOM",
+        children: ["practice/dom"],
       },
     ],
   },
