@@ -15,7 +15,8 @@
     "@ant-design/icons": "^4.2.1",
     "@types/jest": "^26.0.15",
     "antd": "^4.3.4",
-    "dumi": "^1.0.31",
+    "dumi": "^1.1.0",
+    "levenary": "^1.1.1",
     "lodash": "^4.17.19",
     "node-fetch": "^2.6.0",
     "ssri": "^8.0.0"

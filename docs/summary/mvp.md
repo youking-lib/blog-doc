@@ -1,6 +1,5 @@
 # 我在前端项目中使用了 MVP
 
-
 如今流行的 React、Vue 等框架以及微信小程序都会将视图层和数据层抽离，提供组件化的开发模式，解耦交互逻辑，实现了代码的复用。那么 MVC 在前端领域还有再提及的必要吗？
 
 有的，React 只当作自己是 ui render 函数，可以看作 MVC 中的 V。本文介绍 MVC 的变种 - MVP 设计思想，实践于一个交互复杂的微信小程序，在此作总结回顾。
@@ -11,7 +10,7 @@
 
 ![passive-view](./mvp.assets/passive-view.png)
 
-相信大家都了解 MVC 的开发模式，其主要解决视图、数据、业务逻辑耦合度较高；视图、数据模型无法复用；无法进行单元测试，保证代码质量。MVP 是 MVC的延伸，**MVP 与 MVC 的区别在于 Model 层和 View 层的解耦** ，在 MVC 的基础上，它强调强视图和模型层分离，这样的好处也是显而易见的：Model 的职责更加单一，且不与视图层耦合；View 层也更加的“函数式”，减少因与模型层耦合带来的副作用，更加利于组件化。
+相信大家都了解 MVC 的开发模式，其主要解决视图、数据、业务逻辑耦合度较高；视图、数据模型无法复用；无法进行单元测试，保证代码质量。MVP 是 MVC 的延伸，**MVP 与 MVC 的区别在于 Model 层和 View 层的解耦** ，在 MVC 的基础上，它强调强视图和模型层分离，这样的好处也是显而易见的：Model 的职责更加单一，且不与视图层耦合；View 层也更加的“函数式”，减少因与模型层耦合带来的副作用，更加利于组件化。
 
 > 如果对 MVC、MVP、MVVM 概念还有模糊的同学，可以参考 [浅谈 MVC、MVP 和 MVVM 架构模式](https://draveness.me/mvx/)
 
@@ -36,6 +35,7 @@
 ### 需求
 
 假如产品经理给我们这样一个需求：
+
 - 渲染多个分类 Radio，这些按钮需要写在数据库里，能随时增加减少
 - 由于可能存在多个，默认只显示部分，其余部分点击更多展示
 - 五秒钟之后没有选择，自动收起
@@ -46,7 +46,7 @@
 
 #### View 视图层
 
-<code src="./mvp.code/view.jsx" />
+<code src="./mvp_code/view.jsx" />
 
 在编写视图部分源码中，要遵守一个原则：视图层仅做数据接受与事件发送，绝不参杂任何业务逻辑。
 
@@ -54,7 +54,7 @@
 
 再来看看经 presenter 剥离的代码逻辑是怎样的：
 
-<code src="./mvp.code/presenter_view.jsx" />
+<code src="./mvp_code/presenter_view.jsx" />
 
 Presenter 主要用来处理业务逻辑，接受视图抛出的事件并处理与 model 层等其他模块的交互。有人可能会说：这样做看起来只是将 view 层的代码转移到了 presenter 层而已，肯定又会导致 presenter 层业务逻辑较重。
 
@@ -62,8 +62,8 @@ Presenter 主要用来处理业务逻辑，接受视图抛出的事件并处理�
 
 ```js
 class OtherPresenter extends RadioViewPresenter {
-  constructor (option) {
-    super(option)
+  constructor(option) {
+    super(option);
   }
   // other methods
 }
@@ -73,7 +73,7 @@ class OtherPresenter extends RadioViewPresenter {
 
 Model 层用来获取数据，这里引入一种实体的概念来抽象业务的逻辑，以便与解耦部分 presenter 中的逻辑。
 
-<code src="./mvp.code/model_presenter_view.jsx" />
+<code src="./mvp_code/model_presenter_view.jsx" />
 
 ## 解耦一些思路
 
@@ -95,27 +95,27 @@ Model 层用来获取数据，这里引入一种实体的概念来抽象业务�
 ```js
 class SearchViewPresenter {
   @applyAOPDecorator(report)
-  onSearch (keyword) {
-    console.log('onSearch', keyword)
+  onSearch(keyword) {
+    console.log("onSearch", keyword);
   }
 
   @applyAOPDecorator(report)
-  onChoose (result) {
-    console.log('onChoose', )
+  onChoose(result) {
+    console.log("onChoose");
   }
 }
 
-function applyAOPDecorator (interceptor) {
+function applyAOPDecorator(interceptor) {
   return (target, name, descriptor) => {
-    const func = descriptor.value
+    const func = descriptor.value;
     descriptor.value = function (...args) {
-      report(...args)
-      func.apply(this, )
-    }
-  }
+      report(...args);
+      func.apply(this);
+    };
+  };
 }
 
-function report () {
+function report() {
   // ajax report
 }
 ```
@@ -132,11 +132,8 @@ function report () {
 class NavPresenter extends RouteplanPresenter
 ```
 
-
-
 ![nav](./mvp.assets/nav.png)
 
 ## 总结
 
 MVP 应用于小程序的开发模式中，其主要职责在于解耦 视图、数据、业务逻辑间的依赖关系，借助实体、AOP 等编程思想，极大的提高了业务的灵活性、可拓展性。
-
