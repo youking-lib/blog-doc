@@ -158,3 +158,22 @@ export default function () {
   return <div id="virtual-root">root</div>;
 }
 ```
+
+3. dom
+
+```jsx
+import React from 'react';
+import comment from './comment'
+
+comment.create({
+  el: document.querySelector('comment-root')
+})
+
+export default function () {
+  React.useEffect(() => {
+    test();
+  })
+
+  return <div id="comment-root"></div>
+}
+```
