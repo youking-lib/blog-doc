@@ -31,8 +31,41 @@ deepNodePath(document.documentElement);
 ```jsx
 import React from 'react';
 
-const isObject = val => typeof val === 'object';
+function onLoad() {
+  const root = document.querySelector('#virtual-root');
+  const list = h(
+    'ul',
+    {
+      style: {
+        display: 'flex',
+        'list-style-type': 'none'
+      }
+    },
+    ['产品样式', '产品资源', '定向', '矩阵'].map(name =>
+      h(
+        'li',
+        {
+          style: {
+            width: '100px',
+            height: '30px',
+            margin: 0,
+            padding: 0,
+            'margin-right': '10px',
+            border: '1px solid #D9D9D9',
+            'line-height': '30px',
+            'text-align': 'center',
+            'background-color': '#FAFAFA',
+            color: '#666'
+          }
+        },
+        name
+      )
+    )
+  );
+  mount(root, list);
+}
 
+const isObject = val => typeof val === 'object';
 const api = {
   createElement(tag) {
     return document.createElement(tag);
@@ -41,7 +74,6 @@ const api = {
     return document.createTextNode(text);
   },
   appendChild(child, parent) {
-    console.log(child, parent);
     parent.appendChild(child);
   },
   setAttributeMap(node, attrMap) {
@@ -60,7 +92,6 @@ const api = {
     }
   }
 };
-
 function h(tag, props, children) {
   return {
     _type: null, // element | text
@@ -70,7 +101,6 @@ function h(tag, props, children) {
     children
   };
 }
-
 function createElement(vnode) {
   if (!isObject(vnode)) {
     return {
@@ -100,7 +130,6 @@ function createElement(vnode) {
 
   return vnode;
 }
-
 function mount(node, vnode) {
   const mountedNodeTree = createElement(vnode);
 
@@ -110,51 +139,10 @@ function mount(node, vnode) {
 
   node.appendChild(mountedNodeTree.el);
 }
-
-function test() {
-  const root = document.querySelector('#virtual-root');
-
-  const list = ['产品样式', '产品资源', '定向', '矩阵'].map(name =>
-    h(
-      'li',
-      {
-        style: {
-          width: '100px',
-          height: '30px',
-          margin: 0,
-          padding: 0,
-          'margin-right': '10px',
-          border: '1px solid #D9D9D9',
-          'line-height': '30px',
-          'text-align': 'center',
-          'background-color': '#FAFAFA',
-          color: '#666'
-        }
-      },
-      name
-    )
-  );
-
-  mount(
-    root,
-    h(
-      'ul',
-      {
-        style: {
-          display: 'flex',
-          'list-style-type': 'none'
-        }
-      },
-      list
-    )
-  );
-}
-
 export default function () {
   React.useEffect(() => {
-    test();
+    onLoad();
   }, []);
-
   return <div id="virtual-root">root</div>;
 }
 ```
@@ -163,17 +151,16 @@ export default function () {
 
 ```jsx
 import React from 'react';
-import comment from './comment'
+import comment from './comment';
 
-comment.create({
-  el: document.querySelector('comment-root')
-})
+function onLoad() {
+  comment.init(document.querySelector('#comment-root'));
+}
 
 export default function () {
   React.useEffect(() => {
-    test();
-  })
-
-  return <div id="comment-root"></div>
+    onLoad();
+  }, []);
+  return <div id="comment-root"></div>;
 }
 ```
