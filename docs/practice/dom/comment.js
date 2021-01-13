@@ -3,7 +3,7 @@
  * @author: yongzhen
  * @Date: 2021-01-07 09:40:08
  * @LastEditors: yongzhen
- * @LastEditTime: 2021-01-08 14:48:25
+ * @LastEditTime: 2021-01-13 16:28:39
  */
 import CommentViewController from './CommentViewController';
 import { COMMENT_STYLE } from './style';
@@ -13,12 +13,7 @@ export default class CommentApi {
     CommentApi.DEBUG_loadBootstrapStyle();
     CommentApi.loadStyle(root);
 
-    return CommentApi.loadView(root, options);
-  }
-
-  static loadView(root, options) {
     const container = document.createElement('div');
-
     root.appendChild(container);
 
     return new CommentViewController({

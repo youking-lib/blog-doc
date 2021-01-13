@@ -3,7 +3,7 @@
  * @author: yongzhen
  * @Date: 2021-01-08 14:38:22
  * @LastEditors: yongzhen
- * @LastEditTime: 2021-01-13 16:20:30
+ * @LastEditTime: 2021-01-13 18:26:57
  */
 import * as utils from './utils';
 import BaseViewController from './BaseViewController';
@@ -48,9 +48,13 @@ export default class FormViewControler extends BaseViewController {
       el: this.formEl,
       validatorMap: validatorMap
     });
+
+    this.formHelper.bindSubmitCallback(this.onSubmit.bind(this));
   }
 
-  _handleFormControlBlur(e) {}
+  onSubmit(event, fieldValueMap) {
+    alert(JSON.stringify(fieldValueMap));
+  }
 
   render() {
     utils.dom.template(
@@ -59,7 +63,7 @@ export default class FormViewControler extends BaseViewController {
       <form id="comment-form">
         <div class="form-group">
           <label for="nickname">nickname</label>
-          <input type="email" class="form-control" name="nickname">
+          <input type="text" class="form-control" name="nickname">
           <div class="invalid-feedback">
             Please provide a valid city.
           </div>
@@ -94,19 +98,53 @@ class FormHelper extends BaseViewController {
     this.delegateEvent('.form-control', 'blur', this._handleFormControlBlur.bind(this));
   }
 
+  bindSubmitCallback(callback) {
+    this.delegateEvent('button[type="submit"]', 'click', event => {
+      event.preventDefault();
+
+      const { errors, fieldValueMap } = this.validateForm();
+
+      if (errors.length === 0) {
+        callback(event, fieldValueMap);
+      }
+    });
+  }
+
   _handleFormControlBlur(e) {
     const fieldName = e.target.name;
     const fieldVal = e.target.value;
 
-    const errors = this.validateField(fieldName, fieldVal);
-    if (errors.length) {
-      this.setFieldControlInValid(e.target, errors);
-    } else {
-      this.setFieldControlValid(e.target);
-    }
+    this.validateField(fieldName, fieldVal);
   }
 
-  setFieldControlInValid(fieldControlEl, errors) {
+  validateForm() {
+    const controlEls = this.el.querySelectorAll('.form-control');
+    const allFieldErrors = [];
+    const fieldValueMap = {};
+
+    controlEls.forEach(controlEl => {
+      const fieldName = controlEl.name;
+      const fieldVal = controlEl.value;
+
+      const errors = this.validateField(fieldName, fieldVal);
+      if (errors.length) {
+        allFieldErrors.push({
+          field: fieldName,
+          errors
+        });
+      }
+
+      fieldValueMap[fieldName] = fieldVal;
+    });
+
+    return {
+      errors: allFieldErrors,
+      fieldValueMap: fieldValueMap
+    };
+  }
+
+  setFieldControlInValid(fieldName, errors) {
+    const fieldControlEl = this.el.querySelector(`.form-control[name="${fieldName}"]`);
     const parentNode = fieldControlEl.parentNode;
     const invalidEls = parentNode.querySelectorAll('.invalid-feedback');
     const fragement = document.createDocumentFragment();
@@ -129,7 +167,8 @@ class FormHelper extends BaseViewController {
     parentNode.appendChild(fragement);
   }
 
-  setFieldControlValid(fieldControlEl) {
+  setFieldControlValid(fieldName) {
+    const fieldControlEl = this.el.querySelector(`.form-control[name="${fieldName}"]`);
     fieldControlEl.classList.remove('is-invalid');
     fieldControlEl.classList.add('is-valid');
   }
@@ -137,10 +176,19 @@ class FormHelper extends BaseViewController {
   validateField(fieldName, fieldVal) {
     const validators = this.options.validatorMap[fieldName];
 
-    if (validators) {
-      return this.validate(fieldVal, validators);
+    if (!validators) {
+      return [];
     }
-    return [];
+
+    const errors = this.validate(fieldVal, validators);
+
+    if (errors.length) {
+      this.setFieldControlInValid(fieldName, errors);
+    } else {
+      this.setFieldControlValid(fieldName);
+    }
+
+    return errors;
   }
 
   validate(fieldVal, validators) {

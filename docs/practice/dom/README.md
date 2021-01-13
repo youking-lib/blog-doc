@@ -1,6 +1,12 @@
 # DOM 练习
 
-1. 查找最深 dom 节点路径
+1. 查找当前页面有多少种标签
+
+```js
+[...new Set(Array.from(document.querySelectorAll('*')).map(node => node.tagName))];
+```
+
+2. 查找最深 dom 节点路径
 
 ```js
 function deepNodePath(node, nodePath = [], stack = []) {
@@ -26,7 +32,7 @@ function deepNodePath(node, nodePath = [], stack = []) {
 deepNodePath(document.documentElement);
 ```
 
-2. Virtual DOM renderer
+3. Virtual DOM renderer
 
 ```jsx
 import React from 'react';
@@ -147,7 +153,7 @@ export default function () {
 }
 ```
 
-3. dom
+4. dom
 
 ```jsx
 import React from 'react';
