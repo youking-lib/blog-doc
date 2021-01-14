@@ -3,7 +3,7 @@
  * @author: yongzhen
  * @Date: 2021-01-08 14:39:13
  * @LastEditors: yongzhen
- * @LastEditTime: 2021-01-13 19:02:08
+ * @LastEditTime: 2021-01-14 10:06:54
  */
 export const COMMENT_STYLE = `
 .comment-container {
@@ -16,7 +16,7 @@ export const COMMENT_STYLE = `
   margin: auto;
   z-index: 100000;
   width: 400px;
-  height: 500px;
+  height: 600px;
   padding: 20px;
   border: 1px solid #333;
 }
