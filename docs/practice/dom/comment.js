@@ -3,14 +3,14 @@
  * @author: yongzhen
  * @Date: 2021-01-07 09:40:08
  * @LastEditors: yongzhen
- * @LastEditTime: 2021-01-13 16:28:39
+ * @LastEditTime: 2021-01-15 10:13:00
  */
 import CommentViewController from './CommentViewController';
 import { COMMENT_STYLE } from './style';
 
 export default class CommentApi {
   static init(root, options) {
-    CommentApi.DEBUG_loadBootstrapStyle();
+    // CommentApi.DEBUG_loadBootstrapStyle();
     CommentApi.loadStyle(root);
 
     const container = document.createElement('div');
@@ -28,7 +28,7 @@ export default class CommentApi {
     root.appendChild(style);
   }
 
-  static DEBUG_loadBootstrapStyle() {
+  static async DEBUG_loadBootstrapStyle() {
     const link = document.createElement('link');
     link.setAttribute(
       'href',
@@ -37,5 +37,9 @@ export default class CommentApi {
     link.setAttribute('rel', 'stylesheet');
     link.setAttribute('crossorigin', 'anonymous');
     document.head.appendChild(link);
+
+    link.addEventListener('load', () => {
+      console.log(123);
+    });
   }
 }

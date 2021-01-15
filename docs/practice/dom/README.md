@@ -177,7 +177,11 @@ export default function () {
 
 ### 4.1 打包好的 commentapi 文件
 
-粘贴在控制台中，再拷贝以下代码调用：
+在控制台中粘贴下面代码块全部内容，再拷贝以下代码调用：
+
+```js
+commentapi.init(document.body);
+```
 
 ```js
 (function (global, factory) {
