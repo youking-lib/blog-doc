@@ -3,7 +3,7 @@
  * @author: yongzhen
  * @Date: 2021-01-08 14:34:11
  * @LastEditors: yongzhen
- * @LastEditTime: 2021-01-10 15:10:14
+ * @LastEditTime: 2021-01-20 17:15:32
  */
 import * as utils from './utils';
 
@@ -12,7 +12,11 @@ const UN_BUBBLES_EVENTS = ['focus', 'blur'];
 export default class BaseViewController {
   constructor(options) {
     this.options = options;
-    this.el = options.el;
+    this.el = this.options.el;
+
+    if (options.className) {
+      this.el.className = options.className;
+    }
 
     this._events = [];
   }

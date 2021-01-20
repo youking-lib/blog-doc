@@ -3,7 +3,7 @@
  * @author: yongzhen
  * @Date: 2021-01-08 14:36:40
  * @LastEditors: yongzhen
- * @LastEditTime: 2021-01-08 20:08:04
+ * @LastEditTime: 2021-01-20 17:25:58
  */
 import * as utils from './utils';
 import BaseViewController from './BaseViewController';
@@ -11,8 +11,11 @@ import ListViewController from './ListViewController';
 import FormViewControler from './FormViewController';
 
 export default class CommentViewController extends BaseViewController {
+  static defaultOptions = {
+    className: 'comment-container d-none'
+  };
   constructor(options) {
-    super(options);
+    super({ ...options, ...CommentViewController.defaultOptions });
 
     this.viewState = {
       tabs: [
@@ -44,6 +47,16 @@ export default class CommentViewController extends BaseViewController {
     this.formViewController = new FormViewControler({ el: this.formEl });
 
     this.delegateEvent('.nav-link', 'click', this._handleTabNavLinkClick.bind(this));
+  }
+
+  show() {
+    this.el.classList.remove('d-none');
+    this.el.classList.add('d-block');
+  }
+
+  hide() {
+    this.el.classList.remove('d-block');
+    this.el.classList.add('d-none');
   }
 
   _handleTabNavLinkClick(e) {
@@ -78,7 +91,6 @@ export default class CommentViewController extends BaseViewController {
     utils.dom.template(
       this.el,
       `
-      <div class="comment-container">
         <ul class="nav nav-tabs" id="comment-tab-nav">
           ${this.viewState.tabs
             .map(tabItem => {
@@ -101,8 +113,7 @@ export default class CommentViewController extends BaseViewController {
           <div class="tab-pane fade show active" data-key="comment-list"></div>
           <div class="tab-pane fade" data-key="comment-form">profile</div>
         </div>
-      </div>
-    `
+      `
     );
   }
 

@@ -187,14 +187,36 @@ import comment from './comment';
 export default function () {
   return (
     <div>
-      <div id="comment-root"></div>
       <div
         onClick={() => {
-          comment.init(document.querySelector('#comment-root'));
+          const container = document.querySelector('#comment-root');
+          const instance = comment.init(container);
+          instance.show();
+        }}
+        style={{
+          display: 'inline-block',
+          width: 100,
+          marginBottom: 10
         }}
       >
         点我查看
       </div>
+      <div
+        onClick={() => {
+          const container = document.querySelector('#comment-root');
+          const instance = comment.init(container);
+          instance.hide();
+        }}
+        style={{
+          display: 'inline-block',
+          width: 100,
+          marginBottom: 10
+        }}
+      >
+        点我关闭
+      </div>
+
+      <div id="comment-root"></div>
     </div>
   );
 }
