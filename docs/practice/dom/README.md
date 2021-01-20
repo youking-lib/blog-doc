@@ -2,8 +2,33 @@
 
 ## 1. 查找当前页面有多少种标签
 
+方法 1：
+
 ```js
 [...new Set(Array.from(document.querySelectorAll('*')).map(node => node.tagName))];
+```
+
+方法 2:
+
+```js
+function deepNodePath(root) {
+  let stack = [root];
+  const tagNames = [];
+
+  while (stack.length) {
+    const node = stack.shift();
+    const tagName = node.tagName;
+
+    if (tagNames.indexOf(tagName) === -1) {
+      tagNames.push(tagName);
+    }
+
+    if (node.children.length >= 1) {
+      stack = [...stack, ...Array.from(node.children)];
+    }
+  }
+  return tagNames;
+}
 ```
 
 ## 2. 查找最深 dom 节点路径
@@ -32,7 +57,7 @@ function deepNodePath(node, nodePath = [], stack = []) {
 deepNodePath(document.documentElement);
 ```
 
-## 3. Virtual DOM renderer
+## 3. 实现虚拟 dom 到真实 dom 的转换
 
 ```jsx
 import React from 'react';
@@ -153,7 +178,7 @@ export default function () {
 }
 ```
 
-## 4. dom
+## 4. 使用原生 JS 实现 tab 切换、表单验证等逻辑
 
 ```jsx
 import React from 'react';
