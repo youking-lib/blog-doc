@@ -85,12 +85,12 @@ export default function () {
 方法 2:
 
 ```js
-function deepNodePath(root) {
-  let stack = [root];
+function getAllTagName(root) {
+  let queue = [root];
   const tagNames = [];
 
-  while (stack.length) {
-    const node = stack.shift();
+  while (queue.length) {
+    const node = queue.shift();
     const tagName = node.tagName;
 
     if (tagNames.indexOf(tagName) === -1) {
@@ -98,14 +98,36 @@ function deepNodePath(root) {
     }
 
     if (node.children.length >= 1) {
-      stack = [...stack, ...Array.from(node.children)];
+      queue = [...queue, ...Array.from(node.children)];
     }
   }
   return tagNames;
 }
+getAllTagName(document.documentElement);
+```
+
+方法 3 - TreeWalker
+
+```js
+function getAllTagName(root) {
+  const treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+  const tagNames = [];
+  let it = treeWalker.currentNode;
+  while (it) {
+    const tagName = it.tagName;
+    if (tagNames.indexOf(tagName) === -1) {
+      tagNames.push(tagName);
+    }
+    it = treeWalker.nextNode();
+  }
+  return tagNames;
+}
+getAllTagName(document.documentElement);
 ```
 
 ## 3. 查找最深 dom 节点路径
+
+方法 1
 
 ```js
 function deepNodePath(node, nodePath = [], stack = []) {
@@ -129,6 +151,12 @@ function deepNodePath(node, nodePath = [], stack = []) {
 }
 
 deepNodePath(document.documentElement);
+```
+
+方法 2
+
+```js
+function deepNodePath(node) {}
 ```
 
 ## 4. 实现虚拟 dom 到真实 dom 的转换
