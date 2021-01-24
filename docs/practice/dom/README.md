@@ -1,6 +1,80 @@
 # DOM 练习
 
-## 1. 查找当前页面有多少种标签
+## 1. dom 节点点击相互交换
+
+```jsx
+import React from 'react';
+
+function insertTabs(root) {
+  const COLORS = [
+    'magenta',
+    'red',
+    'volcano',
+    'orange',
+    'gold',
+    'lime',
+    'green',
+    'cyan',
+    'blue',
+    'geekblue',
+    'purple'
+  ];
+
+  root.innerHTML = COLORS.map(color => {
+    return `<li>${color}</li>`;
+  }).join('');
+}
+
+function swapTabs(root) {
+  let temp = null;
+
+  const selectNode = node => {
+    node.style.color = 'red';
+    temp = node;
+  };
+  const unSelectNode = () => {
+    temp.style.color = 'inherit';
+    temp = null;
+  };
+
+  const swapNode = target => {
+    const targetNextSibling = target.nextSibling;
+
+    if (targetNextSibling === temp) {
+      // 处理相邻两个节点交换
+      root.insertBefore(temp, target);
+    } else {
+      root.insertBefore(target, temp);
+      root.insertBefore(temp, targetNextSibling);
+    }
+  };
+
+  root.onclick = event => {
+    console.log(event.target.tagName);
+    if (event.target.tagName !== 'LI') {
+      return;
+    }
+
+    if (temp === null) {
+      selectNode(event.target);
+    } else {
+      swapNode(event.target);
+      unSelectNode();
+    }
+  };
+}
+
+export default function () {
+  React.useEffect(() => {
+    const root = document.querySelector('#test-container');
+    insertTabs(root);
+    swapTabs(root);
+  }, []);
+  return <ul id="test-container"></ul>;
+}
+```
+
+## 2. 查找当前页面有多少种标签
 
 方法 1：
 
@@ -31,7 +105,7 @@ function deepNodePath(root) {
 }
 ```
 
-## 2. 查找最深 dom 节点路径
+## 3. 查找最深 dom 节点路径
 
 ```js
 function deepNodePath(node, nodePath = [], stack = []) {
@@ -57,7 +131,7 @@ function deepNodePath(node, nodePath = [], stack = []) {
 deepNodePath(document.documentElement);
 ```
 
-## 3. 实现虚拟 dom 到真实 dom 的转换
+## 4. 实现虚拟 dom 到真实 dom 的转换
 
 ```jsx
 import React from 'react';
@@ -178,7 +252,7 @@ export default function () {
 }
 ```
 
-## 4. 使用原生 JS 实现 tab 切换、表单验证等逻辑
+## 5. 使用原生 JS 实现 tab 切换、表单验证逻辑
 
 ```jsx
 import React from 'react';
