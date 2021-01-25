@@ -156,7 +156,23 @@ deepNodePath(document.documentElement);
 方法 2
 
 ```js
-function deepNodePath(node) {}
+function deepNodePath(root) {
+  const queue = [root];
+  const path = [root];
+  let cur;
+  while (queue.length) {
+    cur = queue.shift();
+    if (cur.children.length) {
+      queue.push(...cur.children);
+    }
+  }
+  while (cur !== root) {
+    path.push(cur);
+    cur = cur.parentNode;
+  }
+  return path;
+}
+deepNodePath(document.documentElement);
 ```
 
 ## 4. 实现虚拟 dom 到真实 dom 的转换
