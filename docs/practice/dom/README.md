@@ -82,45 +82,46 @@ export default function () {
 [...new Set(Array.from(document.querySelectorAll('*')).map(node => node.tagName))];
 ```
 
-方法 2:
+方法 2 - 广度遍历:
 
 ```js
 function getAllTagName(root) {
   let queue = [root];
-  const tagNames = [];
+  const tagNameMap = {};
 
   while (queue.length) {
     const node = queue.shift();
     const tagName = node.tagName;
 
-    if (tagNames.indexOf(tagName) === -1) {
-      tagNames.push(tagName);
+    if (!tagNameMap[tagName]) {
+      tagNameMap[tagName] = 1;
     }
 
     if (node.children.length >= 1) {
       queue = [...queue, ...Array.from(node.children)];
     }
   }
-  return tagNames;
+  return Object.keys(tagNameMap);
 }
 getAllTagName(document.documentElement);
 ```
 
-方法 3 - TreeWalker
+方法 3 - TreeWalker:
 
 ```js
 function getAllTagName(root) {
   const treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
-  const tagNames = [];
+  const tagNameMap = {};
   let it = treeWalker.currentNode;
+
   while (it) {
     const tagName = it.tagName;
-    if (tagNames.indexOf(tagName) === -1) {
-      tagNames.push(tagName);
+    if (!tagNameMap[tagName]) {
+      tagNameMap[tagName] = 1;
     }
     it = treeWalker.nextNode();
   }
-  return tagNames;
+  return Object.keys(tagNameMap);
 }
 getAllTagName(document.documentElement);
 ```
