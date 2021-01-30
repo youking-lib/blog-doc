@@ -3,7 +3,7 @@
  * @author: yongzhen
  * @Date: 2021-01-30 14:41:09
  * @LastEditors: yongzhen
- * @LastEditTime: 2021-01-30 16:58:44
+ * @LastEditTime: 2021-01-30 17:05:23
  */
 const commands = [
   {
@@ -333,6 +333,7 @@ class Editor {
 
       if (!Editor.isSupportedCommand(command.cmd)) {
         button.setAttribute('disabled', 'true');
+        button.style.cursor = 'not-allowed';
         toolbar.append(button);
       } else {
         toolbar.insertBefore(button, toolbar.firstChild);
