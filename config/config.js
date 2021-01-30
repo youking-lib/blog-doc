@@ -3,7 +3,7 @@
  * @author: yongzhen
  * @Date: 2020-10-23 11:28:31
  * @LastEditors: yongzhen
- * @LastEditTime: 2021-01-24 19:30:23
+ * @LastEditTime: 2021-01-30 14:14:23
  */
 import { defineConfig } from 'dumi';
 
@@ -54,6 +54,10 @@ export default defineConfig({
       {
         title: 'DOM',
         children: ['practice/dom']
+      },
+      {
+        title: 'Editor',
+        children: ['practice/editor']
       }
     ]
   },
