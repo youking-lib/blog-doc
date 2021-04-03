@@ -15,6 +15,7 @@
     "@ant-design/icons": "^4.2.1",
     "@types/jest": "^26.0.15",
     "antd": "^4.3.4",
+    "classnames": "^2.2.6",
     "dumi": "^1.1.0",
     "levenary": "^1.1.1",
     "lodash": "^4.17.19",
