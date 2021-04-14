@@ -70,5 +70,5 @@ function filter(arr) {
   return result;
 }
 
-console.log(filter(arr));
+console.log(filter(arr)); // [[1,3],[1,4],[3,2],[3,5]]
 ```
