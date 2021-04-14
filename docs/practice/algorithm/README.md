@@ -34,6 +34,7 @@ var arr = [
 function filter(arr) {
   const result = [];
   const pathLengthMap = {
+    // eg:
     // 3: { length: 2, item: [1, 3] }
   };
 
