@@ -49,7 +49,11 @@ export default defineConfig({
     '/practice': [
       {
         title: 'Algorithm',
-        children: ['practice/algorithm/calculator/README', 'practice/algorithm/array']
+        children: [
+          'practice/algorithm/README',
+          'practice/algorithm/calculator/README',
+          'practice/algorithm/array'
+        ]
       },
       {
         title: 'DOM',
