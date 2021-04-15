@@ -19,6 +19,8 @@
 ```
 
 ```ts
+// 1. 被裁剪的路径：[1,3],[1,4],[3,2],[3,5]
+// 2. 数据结构
 var arr = [
   [1, 2],
   [1, 3],
@@ -30,7 +32,7 @@ var arr = [
   [3, 2],
   [4, 5]
 ];
-
+// 3. 算法实现
 function filter(arr) {
   const result = [];
   const pathLengthMap = {
