@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== 'development') {
   scripts.push('https://hm.baidu.com/hm.js?56fbe606b14d07f8ad321f2c766e4d29');
 }
 
-const footer = `Open-source MIT Licensed | Copyright © 2023-present | <a style="color: inherit" href="https://beian.miit.gov.cn/" target="_blank">京ICP备2023000605号</a>`;
+const footer = `Open-source MIT Licensed | Copyright © 2023-present | <a style="color: inherit" href="https://beian.miit.gov.cn/" target="_blank">京ICP备2023000605号-1</a>`;
 
 export default defineConfig({
   exportStatic: {},
