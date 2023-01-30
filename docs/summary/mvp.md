@@ -1,4 +1,4 @@
-# 我在前端项目中使用了 MVP
+# 前端项目 MVP 分层设计
 
 如今流行的 React、Vue 等框架以及微信小程序都会将视图层和数据层抽离，提供组件化的开发模式，解耦交互逻辑，实现了代码的复用。那么 MVC 在前端领域还有再提及的必要吗？
 
@@ -46,7 +46,7 @@
 
 #### View 视图层
 
-<code src="./mvp_code/view.jsx" />
+<code src="./mvp_code/view.jsx"></code>
 
 在编写视图部分源码中，要遵守一个原则：视图层仅做数据接受与事件发送，绝不参杂任何业务逻辑。
 
@@ -54,7 +54,7 @@
 
 再来看看经 presenter 剥离的代码逻辑是怎样的：
 
-<code src="./mvp_code/presenter_view.jsx" />
+<code src="./mvp_code/presenter_view.jsx"></code>
 
 Presenter 主要用来处理业务逻辑，接受视图抛出的事件并处理与 model 层等其他模块的交互。有人可能会说：这样做看起来只是将 view 层的代码转移到了 presenter 层而已，肯定又会导致 presenter 层业务逻辑较重。
 
@@ -73,7 +73,7 @@ class OtherPresenter extends RadioViewPresenter {
 
 Model 层用来获取数据，这里引入一种实体的概念来抽象业务的逻辑，以便与解耦部分 presenter 中的逻辑。
 
-<code src="./mvp_code/model_presenter_view.jsx" />
+<code src="./mvp_code/model_presenter_view.jsx"></code>
 
 ## 解耦一些思路
 
@@ -96,12 +96,12 @@ Model 层用来获取数据，这里引入一种实体的概念来抽象业务�
 class SearchViewPresenter {
   @applyAOPDecorator(report)
   onSearch(keyword) {
-    console.log("onSearch", keyword);
+    console.log('onSearch', keyword);
   }
 
   @applyAOPDecorator(report)
   onChoose(result) {
-    console.log("onChoose");
+    console.log('onChoose');
   }
 }
 

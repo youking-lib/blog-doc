@@ -2,7 +2,7 @@
 
 ## SRI 在线生成
 
-<code src="./sri_code/index.jsx" />
+<code src="./sri_code/index.jsx"></code>
 
 ## 简介
 

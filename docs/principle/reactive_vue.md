@@ -1,8 +1,9 @@
 ---
-title: 深入了解 vue 响应式原理
+title: 深入了解 vue2 响应式原理
 tags:
 ---
-# 深入了解 vue 响应式原理
+
+# 深入了解 vue2 响应式原理
 
 ## 概述
 
@@ -18,12 +19,12 @@ const dog = {
   single: false,
   girlFriend: 'charm',
   house: 'villa'
-}
-delete dog.house
-dog.single = true
-dog.character = 'easy'
-delete dog.girlFriend
-console.log(dog.name)
+};
+delete dog.house;
+dog.single = true;
+dog.character = 'easy';
+delete dog.girlFriend;
+console.log(dog.name);
 ```
 
 上面的操作是低效的，当删除 dog 的 house 属性，single 属性应该自动被设置为 true。通过数据劫持，可以通过拦截某个属性的修改操作，进而去处理这个改变应该触发的其他值、状态的更新。
@@ -39,30 +40,30 @@ const dog = {
   name: 'dog',
   single: true,
   girlFriend: null
-}
-_house = null
+};
+_house = null;
 Object.defineProperty(dog, 'house', {
   configurable: true,
   get: () => _house,
-  set: (house) => {
+  set: house => {
     if (house) {
-      _house = house
-      dog.girlFriend = 'charm'
-      dog.single = false
+      _house = house;
+      dog.girlFriend = 'charm';
+      dog.single = false;
     } else {
-      _house = ''
-      dog.girlFriend = null
-      dog.single = true
+      _house = '';
+      dog.girlFriend = null;
+      dog.single = true;
     }
   }
-})
-dog.house = 'villa'
+});
+dog.house = 'villa';
 // {
 //   name: 'dog',
 //   single: false,
 //   girlFriend: 'charm'
 // }
-dog.house = null
+dog.house = null;
 // {
 //   name: 'dog',
 //   single: true,
@@ -81,8 +82,8 @@ dog.house = null
 Object.defineProperty 无法做到新增属性的拦截：
 
 ```js
-const dog = {}
-dog.name = 'dog'
+const dog = {};
+dog.name = 'dog';
 ```
 
 vue 官网中也提到:
@@ -91,12 +92,12 @@ vue 官网中也提到:
 >
 > ```js
 > var vm = new Vue({
->   data:{
->     a:1
+>   data: {
+>     a: 1
 >   }
-> })
+> });
 > // `vm.a` 是响应式的
-> vm.b = 2
+> vm.b = 2;
 > // `vm.b` 是非响应式的
 > ```
 
@@ -105,15 +106,19 @@ vue 官网中也提到:
 Object.defineProperty 无法感知到已有属性的删除：
 
 ```js
-const dog = {}
+const dog = {};
 Object.defineProperty(dog, 'name', {
   configurable: true,
-  get () { return 'dog' },
-  set (value) { console.log(value) }
-})
-console.log(dog.name) // 'dog'
-delete dog.name
-console.log(dog.name) // undefined
+  get() {
+    return 'dog';
+  },
+  set(value) {
+    console.log(value);
+  }
+});
+console.log(dog.name); // 'dog'
+delete dog.name;
+console.log(dog.name); // undefined
 ```
 
 defineProperty 的 set 描述符并不能劫持到 delete 操作。所以在 vue 中提供一个 `Vue.delete` 方法来删除一个属性。
@@ -121,20 +126,20 @@ defineProperty 的 set 描述符并不能劫持到 delete 操作。所以在 vue
 #### 2. 不能检测数组
 
 ```js
-const dogs = []
+const dogs = [];
 Object.defineProperty(dogs, 0, {
   configurable: true,
   get: () => 'easy',
   set: console.log
-})
+});
 Object.defineProperty(dogs, 1, {
   configurable: true,
   get: () => 'poor',
   set: console.log
-})
-dogs.length // 2
-dogs[0] // 'easy'
-dogs[1] // 'poor'
+});
+dogs.length; // 2
+dogs[0]; // 'easy'
+dogs[1]; // 'poor'
 ```
 
 看起来通过 Object.defineProperty 配置的数组元素表现正常，那么试一试操作数据的方法：
@@ -155,19 +160,19 @@ dogs.unshift('newdog2')
 MDN 官网上提到 Object.assign 方法在执行的时候，并不会拷贝属性描述符到新对象，所以在执行过程中，属性描述符会丢失：
 
 ```js
-const dog = {}
+const dog = {};
 Object.defineProperty(dog, 'name', {
   configurable: true,
   enumerable: true,
-  get () {
-    return 'dog'
+  get() {
+    return 'dog';
   },
-  set (value) {
-    console.log(value)
+  set(value) {
+    console.log(value);
   }
-})
-const dogBackup = Object.assign({}, dog) // { name: 'dog' }
-dogBackup.name = 'dogBackup' // { name: 'dogBackup' }
+});
+const dogBackup = Object.assign({}, dog); // { name: 'dog' }
+dogBackup.name = 'dogBackup'; // { name: 'dogBackup' }
 ```
 
 ### Proxy
@@ -182,51 +187,51 @@ const dog = {
   single: true,
   girlFriend: null,
   house: null
-}
+};
 const proxyDog = new Proxy(dog, {
-  get (target, prop, receiver) {
+  get(target, prop, receiver) {
     // 拦截查找操作
-    return Reflect.get(target, prop, receiver)
+    return Reflect.get(target, prop, receiver);
   },
-  set (target, prop, value, receiver) {
+  set(target, prop, value, receiver) {
     // 拦截新增属性
-		if (!Reflect.has(target, prop)) {
-      throw TypeError('Unknown type ' + prop)
+    if (!Reflect.has(target, prop)) {
+      throw TypeError('Unknown type ' + prop);
     }
     // 拦截复制操作
     if (prop === 'house') {
       if (value) {
-        Reflect.set(target, 'girlFriend', 'charm', receiver)
-        Reflect.set(target, 'single', false, receiver)
+        Reflect.set(target, 'girlFriend', 'charm', receiver);
+        Reflect.set(target, 'single', false, receiver);
       } else {
-        Reflect.set(target, 'girlFriend', null, receiver)
-        Reflect.set(target, 'single', true, receiver)
+        Reflect.set(target, 'girlFriend', null, receiver);
+        Reflect.set(target, 'single', true, receiver);
       }
     }
-    return Reflect.set(target, prop, value, receiver)
+    return Reflect.set(target, prop, value, receiver);
   },
-  deleteProperty (target, prop) {
+  deleteProperty(target, prop) {
     // 拦截删除
     if (prop === 'house') {
-      Reflect.set(target, 'girlFriend', null)
-      Reflect.set(target, 'single', true)
+      Reflect.set(target, 'girlFriend', null);
+      Reflect.set(target, 'single', true);
     }
-		return Reflect.deleteProperty(target, prop)
+    return Reflect.deleteProperty(target, prop);
   }
-})
+});
 ```
 
 #### 2. 拦截数组原型上的方法
 
 ```js
-const dogs = []
+const dogs = [];
 var proxyDog = new Proxy(dogs, {
-	apply (targetFun, ctx, args) {
+  apply(targetFun, ctx, args) {
     // 拦截方法调用
-    return Reflect.apply(targetFun, ctx, args)
+    return Reflect.apply(targetFun, ctx, args);
   }
-})
-proxyDog.push('easy')
+});
+proxyDog.push('easy');
 ```
 
 #### 3. 为什么 Vue2 中不使用 Proxy 呢？
@@ -255,20 +260,20 @@ proxyDog.push('easy')
 Object.defineProperty(obj, key, {
   enumerable: true,
   configurable: true,
-  get: function reactiveGetter () {
-    const value = getter ? getter.call(obj) : val
+  get: function reactiveGetter() {
+    const value = getter ? getter.call(obj) : val;
     if (Dep.target) {
-      dep.depend()
+      dep.depend();
       if (childOb) {
-        childOb.dep.depend()
+        childOb.dep.depend();
         if (Array.isArray(value)) {
-          dependArray(value)
+          dependArray(value);
         }
       }
     }
-    return value
+    return value;
   }
-})
+});
 ```
 
 这里问题就来了，我们正常取值 `data.name` 或者 `this.name` ，会触发 `reactiveGetter` ，但是这时候 `Dep.target` 肯定是不存在的，只有当 `Dep.target` 存在的时候才进行依赖收集：`dep.depend()` 。那么什么时候 `Dep.target` 才存在呢？`dep.depend()` 方法又做了些什么事情呢？
@@ -277,28 +282,28 @@ Object.defineProperty(obj, key, {
 
 ```js
 Object.defineProperty({
-  set: function reactiveSetter (newVal) {
-    const value = getter ? getter.call(obj) : val
-		// 判断是否需要更新
+  set: function reactiveSetter(newVal) {
+    const value = getter ? getter.call(obj) : val;
+    // 判断是否需要更新
     if (newVal === value || (newVal !== newVal && value !== value)) {
-      return
+      return;
     }
     /* eslint-enable no-self-compare */
     if (process.env.NODE_ENV !== 'production' && customSetter) {
-      customSetter()
+      customSetter();
     }
     // #7981: for accessor properties without setter
-    if (getter && !setter) return
+    if (getter && !setter) return;
     if (setter) {
-      setter.call(obj, newVal)
+      setter.call(obj, newVal);
     } else {
-      val = newVal
+      val = newVal;
     }
-    childOb = !shallow && observe(newVal)
+    childOb = !shallow && observe(newVal);
     // 通知更新
-    dep.notify()
+    dep.notify();
   }
-})
+});
 ```
 
 reactiveSetter 所做的事情就比较简单，主要做了两件事：1. 判断值是否发生变化；2. 通知依赖更新
@@ -307,7 +312,7 @@ reactiveSetter 所做的事情就比较简单，主要做了两件事：1. 判�
 
 在收集依赖的过程中，提出了两个问题：
 
-**问题1：Dep.target 什么时候存在？**
+**问题 1：Dep.target 什么时候存在？**
 
 首先 target 的类型是一个 `Watcher` 实例，在一个 vue 组件实例化的时候，会创建一个渲染 watcher ，渲染 watcher 是一个非惰性 watcher，实例化的的时候会立即将 Dep.target 设置成自己；
 
@@ -319,21 +324,21 @@ with(this){return ${code}}
 
 with 语法通常在模版引擎使用，这样在模版编译的时候访问变量时的作用域，都是 with 指定的作用域，这样就可以触发对象属性的 `getter` 方法了。
 
->Dep.target 存在的条件可以认为是：需要数据来驱动更新；这在 Vue 中体现在：
+> Dep.target 存在的条件可以认为是：需要数据来驱动更新；这在 Vue 中体现在：
 >
->1. 视图渲染
->2. 计算属性
->3. $watch 方法
+> 1.  视图渲染
+> 2.  计算属性
+> 3.  $watch 方法
 
-**问题2：`dep.depend` 方法做了什么事情？**
+**问题 2：`dep.depend` 方法做了什么事情？**
 
 在对象属性的 getter 触发时，调用 `dep.depend()` 方法：
 
 ```js
 class Dep {
-	depend () {
+  depend() {
     if (Dep.target) {
-      Dep.target.addDep(this)
+      Dep.target.addDep(this);
     }
   }
 }
@@ -347,17 +352,19 @@ class Dep {
 
 ```html
 <template>
-	<div>index</div>
+  <div>index</div>
 </template>
 <script>
-export default {
-  data () { return { index: 0 } },
-  mounted () {
-    for (let i=0; i<100; i++) {
-      this.index = i
+  export default {
+    data() {
+      return { index: 0 };
+    },
+    mounted() {
+      for (let i = 0; i < 100; i++) {
+        this.index = i;
+      }
     }
-  }
-}
+  };
 </script>
 ```
 
@@ -365,42 +372,42 @@ export default {
 
 ```js
 // observer/index.js
-function defineReactive () {
+function defineReactive() {
   // ...
   Object.defineProperty({
-    set () {
+    set() {
       // ...
-      dep.notify()
+      dep.notify();
     }
-  })
+  });
 }
 // dep.js
 class Dep {
-	notify () {
+  notify() {
     // stabilize the subscriber list first
-    const subs = this.subs.slice()
+    const subs = this.subs.slice();
     if (process.env.NODE_ENV !== 'production' && !config.async) {
       // subs aren't sorted in scheduler if not running async
       // we need to sort them now to make sure they fire in correct
       // order
-      subs.sort((a, b) => a.id - b.id)
+      subs.sort((a, b) => a.id - b.id);
     }
     for (let i = 0, l = subs.length; i < l; i++) {
-      subs[i].update()
+      subs[i].update();
     }
   }
 }
 // watcher.js
 class Watcher {
   // ...
-  update () {
+  update() {
     /* istanbul ignore else */
     if (this.lazy) {
-      this.dirty = true
+      this.dirty = true;
     } else if (this.sync) {
-      this.run()
+      this.run();
     } else {
-      queueWatcher(this)
+      queueWatcher(this);
     }
   }
 }
@@ -409,17 +416,17 @@ class Watcher {
 queueWatcher 会将当前 watcher push 到更新队列中，然后开始异步更新，以及更新后调触发响应的生命周期事件
 
 ```js
-function queueWatcher (watcher) {
-	nextTick(flushSchedulerQueue)
+function queueWatcher(watcher) {
+  nextTick(flushSchedulerQueue);
 }
-function flushSchedulerQueue () {
+function flushSchedulerQueue() {
   for (index = 0; index < queue.length; index++) {
-    watcher = queue[index]
-   	watcher.run()
+    watcher = queue[index];
+    watcher.run();
     // ...
-		const vm = watcher.vm
+    const vm = watcher.vm;
     if (vm._watcher === watcher && vm._isMounted && !vm._isDestroyed) {
-      callHook(vm, 'updated')
+      callHook(vm, 'updated');
     }
   }
 }
@@ -432,29 +439,29 @@ function flushSchedulerQueue () {
 如果监听的 一个对象是一个数组，那么：
 
 ```js
-const hasProto = '__proto__' in {}
+const hasProto = '__proto__' in {};
 class Observer {
-  constructor (value: any) {
-    this.value = value
-    
+  constructor(value: any) {
+    this.value = value;
+
     if (isArray(value)) {
       if (hasProto) {
-        value.__proto__ = arrayMethods
+        value.__proto__ = arrayMethods;
       }
-      this.observeArray(value)
+      this.observeArray(value);
     } else {
-      this.walk(value)
+      this.walk(value);
     }
   }
-  observeArray (value) {
-    for (let i=0, l=value.length; i<l; i++) {
-      observe(value[i])
+  observeArray(value) {
+    for (let i = 0, l = value.length; i < l; i++) {
+      observe(value[i]);
     }
   }
-  walk (obj) {
-    const keys = Object.keys(obj)
-    for (let i=0; i<keys.length; i++) {
-      defineReactive(obj, keys[i])
+  walk(obj) {
+    const keys = Object.keys(obj);
+    for (let i = 0; i < keys.length; i++) {
+      defineReactive(obj, keys[i]);
     }
   }
 }
@@ -463,75 +470,3 @@ class Observer {
 ### Proxy 在 Vue3 中的运用
 
 // TODO
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
